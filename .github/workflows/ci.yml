@@ -1,0 +1,51 @@
+name: C# lint, build and tests
+
+on:
+  push:
+    paths-ignore:
+      - '.github/workflows/**'
+      - 'README.md'
+  pull_request:
+    paths-ignore:
+      - '.github/workflows/**'
+
+jobs:
+  build-Windows:
+    runs-on: windows-latest
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '7.0.x'
+          
+      - name: Lint
+        run: $slnInList = Get-ChildItem -Recurse -Filter '*.sln'; foreach ($file in $slnInList) {dotnet format $file.FullName}
+        
+      - name: Build
+        run: $slnInList = Get-ChildItem -Recurse -Filter '*.sln'; foreach ($file in $slnInList) {dotnet build $file.FullName}
+        
+      - name: Run tests
+        run: $slnInList = Get-ChildItem -Recurse -Filter '*.sln'; foreach ($file in $slnInList) {dotnet test $file.FullName}
+      
+  build-Ubuntu:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '7.0.x'
+    
+      - name: Lint
+        run: for file in $(find . -name "*.sln"); do dotnet format $file; done
+          
+      - name: Build
+        run: for file in $(find . -name "*.sln"); do dotnet build $file; done
+      
+      - name: Run tests
+        run: for file in $(find . -name "*.sln"); do dotnet test $file; done
