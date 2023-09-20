@@ -35,7 +35,7 @@ else
 
     var firstMatrix = Matrix.LoadFromFile(args[0]);
     var secondMatrix = Matrix.LoadFromFile(args[1]);
-    var resultMatrix = Matrix.Multiply(firstMatrix, secondMatrix);
+    var resultMatrix = Matrix.MultiplyParallel(firstMatrix, secondMatrix);
 
     resultMatrix.WriteInFile(Directory.GetCurrentDirectory() + "/result.txt");
     WriteLine("Done!");

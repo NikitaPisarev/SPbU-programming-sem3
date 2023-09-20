@@ -48,6 +48,48 @@ public class Matrix
 
         return newMatrix;
     }
+    public static Matrix MultiplyParallel(Matrix firstMatrix, Matrix secondMatrix)
+    {
+        if (firstMatrix.ColumnsCount != secondMatrix.RowsCount)
+        {
+            throw new InvalidOperationException("Number of columns in first matrix must be equal to number of rows in second matrix.");
+        }
+
+        var resultMatrix = new Matrix(firstMatrix.RowsCount, secondMatrix.ColumnsCount);
+        int numberOfCores = Environment.ProcessorCount;
+        var threads = new Thread[numberOfCores];
+
+        int chunkSize = firstMatrix.RowsCount / numberOfCores;
+        for (int i = 0; i < numberOfCores; i++)
+        {
+            int startRow = i * chunkSize;
+            int endRow = (i == numberOfCores - 1) ? firstMatrix.RowsCount : startRow + chunkSize;
+
+            threads[i] = new Thread(() => MultiplyRowRange(startRow, endRow, firstMatrix, secondMatrix, resultMatrix));
+            threads[i].Start();
+        }
+
+        foreach (Thread thread in threads)
+        {
+            thread.Join();
+        }
+
+        return resultMatrix;
+    }
+
+    private static void MultiplyRowRange(int startRow, int endRow, Matrix firstMatrix, Matrix secondMatrix, Matrix result)
+    {
+        for (int i = startRow; i < endRow; i++)
+        {
+            for (int j = 0; j < secondMatrix.ColumnsCount; j++)
+            {
+                for (int k = 0; k < firstMatrix.ColumnsCount; k++)
+                {
+                    result[i, j] += firstMatrix[i, k] * secondMatrix[k, j];
+                }
+            }
+        }
+    }
 
     public static Matrix LoadFromFile(string filePath)
     {
