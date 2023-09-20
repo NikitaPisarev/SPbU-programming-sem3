@@ -23,20 +23,18 @@ else
         return;
     }
 
-    if (!File.Exists(args[0]))
+    try
     {
-        throw new FileNotFoundException("File not found.");
-    }
+        var firstMatrix = Matrix.LoadFromFile(args[0]);
+        var secondMatrix = Matrix.LoadFromFile(args[1]);
+        var resultMatrix = Matrix.MultiplyParallel(firstMatrix, secondMatrix);
 
-    if (!File.Exists(args[1]))
+        resultMatrix.WriteInFile(Directory.GetCurrentDirectory() + "/result.txt");
+        WriteLine("Done!");
+    }
+    catch (Exception e) when (e is ArgumentException || e is InvalidOperationException)
     {
-        throw new FileNotFoundException("File not found.");
+        Write(e.Message);
+        return;
     }
-
-    var firstMatrix = Matrix.LoadFromFile(args[0]);
-    var secondMatrix = Matrix.LoadFromFile(args[1]);
-    var resultMatrix = Matrix.MultiplyParallel(firstMatrix, secondMatrix);
-
-    resultMatrix.WriteInFile(Directory.GetCurrentDirectory() + "/result.txt");
-    WriteLine("Done!");
 }

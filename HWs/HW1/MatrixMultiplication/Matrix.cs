@@ -93,13 +93,23 @@ public class Matrix
 
     public static Matrix LoadFromFile(string filePath)
     {
+        if (!File.Exists(filePath))
+        {
+            throw new FileNotFoundException("File  not found.");
+        }
+
         using (StreamReader reader = new StreamReader(filePath))
         {
             var matrixLines = reader.ReadToEnd().Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries).ToList();
 
             int numberRows = matrixLines.Count;
-            int numberColumns = matrixLines[0].Split(' ').Length;
 
+            if (numberRows == 0)
+            {
+                throw new ArgumentException("File is empty.");
+            }
+
+            int numberColumns = matrixLines[0].Split(' ').Length;
             var resultMatrix = new Matrix(numberRows, numberColumns);
 
             for (int i = 0; i < numberRows; i++)
@@ -107,12 +117,17 @@ public class Matrix
                 string[] values = matrixLines[i].Split(' ');
                 if (values.Length != numberColumns)
                 {
-                    throw new InvalidOperationException("Inconsistent number of columns in the matrix.");
+                    throw new ArgumentException("Inconsistent number of columns in the matrix.");
                 }
 
                 for (int j = 0; j < numberColumns; j++)
                 {
-                    resultMatrix[i, j] = int.Parse(values[j]);
+                    int value = 0;
+                    if (!int.TryParse(values[j], out value))
+                    {
+                        throw new ArgumentException("Incorrect values in the matrix.");
+                    }
+                    resultMatrix[i, j] = value;
                 }
             }
 
