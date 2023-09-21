@@ -91,11 +91,31 @@ public class Matrix
         }
     }
 
+    public bool IsEqual(Matrix? otherMatrix)
+    {
+        if (otherMatrix == null)
+            return false;
+
+        if (RowsCount != otherMatrix.RowsCount || ColumnsCount != otherMatrix.ColumnsCount)
+            return false;
+
+        for (int i = 0; i < RowsCount; i++)
+        {
+            for (int j = 0; j < ColumnsCount; j++)
+            {
+                if (_data[i, j] != otherMatrix[i, j])
+                    return false;
+            }
+        }
+
+        return true;
+    }
+
     public static Matrix LoadFromFile(string filePath)
     {
         if (!File.Exists(filePath))
         {
-            throw new FileNotFoundException("File  not found.");
+            throw new FileNotFoundException("File not found.");
         }
 
         using (StreamReader reader = new StreamReader(filePath))
