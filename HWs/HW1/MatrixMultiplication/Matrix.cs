@@ -134,7 +134,7 @@ public class Matrix
     /// </summary>
     /// <param name="otherMatrix">The matrix to compare with this matrix.</param>
     /// <returns>true if the matrices are equal; otherwise, false.</returns>
-    public bool IsEqual(Matrix? otherMatrix)
+    public bool IsEqual(Matrix otherMatrix)
     {
         if (otherMatrix == null)
             return false;
@@ -226,5 +226,34 @@ public class Matrix
                 }
             }
         }
+    }
+
+    /// <summary>
+    /// Creates a Matrix object with the specified number of rows and columns and fills it with random values.
+    /// </summary>
+    /// <param name="rowsCount">The number of rows in the matrix. Must be greater than 0.</param>
+    /// <param name="columnsCount">The number of columns in the matrix. Must be greater than 0.</param>
+    /// <param name="minValue">Lower limit of values. Default is -50.</param>
+    /// <param name="maxValue">Upper limit of values. Default is 50.</param>
+    /// <returns>A Matrix filled with random values between minValue and maxValue.</returns>
+    /// <exception cref="ArgumentException"></exception>
+    public static Matrix CreateRandomMatrix(int rowsCount, int columnsCount, int minValue = -50, int maxValue = 50)
+    {
+        if (rowsCount <= 0 || columnsCount <= 0)
+        {
+            throw new ArgumentException("Number of rows and columns must be greater than 0.");
+        }
+
+        var random = new Random();
+        var data = new Matrix(rowsCount, columnsCount);
+        for (int i = 0; i < rowsCount; i++)
+        {
+            for (int j = 0; j < columnsCount; j++)
+            {
+                data[i, j] = random.Next(minValue, maxValue);
+            }
+        }
+
+        return data;
     }
 }
