@@ -1,7 +1,10 @@
 ﻿using static System.Console;
+using System.Text;
 using MatrixMultiplication;
 
-if (args[0] == "help")
+Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+
+if (args[0] == "--help" || args[0] == "-h")
 {
     WriteLine("""
         This program is designed to multiply matrices
@@ -13,7 +16,25 @@ if (args[0] == "help")
         -------------------------------------------
         The matrix in <File path1> will be multiplied by the matrix in <File path2>
         and the result will be written to the project folder.
+
+        Options:
+        --a, -analyze    Performance Verification. The result is saved in the file "performance_results.png".
+        --h, -help       Shows this help message.
+
         """);
+}
+else if (args[0] == "--a" || args[0] == "-analyze")
+{
+    var matrixSizes = new List<(int rowsA, int colsA, int rowsB, int colsB)>
+        {
+            (100, 200, 200, 100),
+            (500, 300, 300, 500),
+            (1000, 1000, 1000, 1000)
+        };
+    int numberOfRuns = 20;
+
+    var analyzer = new MatrixPerformanceAnalyzer(matrixSizes, numberOfRuns);
+    analyzer.AnalyzePerformance();
 }
 else
 {
