@@ -1,11 +1,27 @@
 namespace MatrixMultiplication;
 
+/// <summary>
+/// Represents a matrix and provides methods for multiplying matrices.
+/// </summary>
 public class Matrix
 {
+    /// <summary>
+    /// Gets the number of rows in the matrix.
+    /// </summary>
     public int RowsCount { get; }
+
+    /// <summary>
+    /// Gets the number of columns in the matrix.
+    /// </summary>
     public int ColumnsCount { get; }
+
     private int[,] _data;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="Matrix"/> class with the specified number of rows and columns.
+    /// </summary>
+    /// <param name="rowsCount">The number of rows in the matrix.</param>
+    /// <param name="columnsCount">The number of columns in the matrix.</param>
     public Matrix(int rowsCount, int columnsCount)
     {
         _data = new int[rowsCount, columnsCount];
@@ -13,6 +29,10 @@ public class Matrix
         ColumnsCount = columnsCount;
     }
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="Matrix"/> class with the specified two-dimensional array.
+    /// </summary>
+    /// <param name="data">The two-dimensional array to initialize the matrix with.</param>
     public Matrix(int[,] data)
     {
         RowsCount = data.GetLength(0);
@@ -20,12 +40,22 @@ public class Matrix
         _data = data;
     }
 
+    /// <summary>
+    /// Matrix indexer.
+    /// </summary>
     public int this[int row, int col]
     {
         get => _data[row, col];
         set => _data[row, col] = value;
     }
 
+    /// <summary>
+    /// Multiplies the specified matrices.
+    /// </summary>
+    /// <param name="firstMatrix">The first matrix to multiply.</param>
+    /// <param name="secondMatrix">The second matrix to multiply.</param>
+    /// <returns>The result of multiplying the first matrix by the second matrix.</returns>
+    /// <exception cref="InvalidOperationException"></exception>
     public static Matrix Multiply(Matrix firstMatrix, Matrix secondMatrix)
     {
         if (firstMatrix.ColumnsCount != secondMatrix.RowsCount)
@@ -48,6 +78,14 @@ public class Matrix
 
         return newMatrix;
     }
+
+    /// <summary>
+    /// Multiplies the specified matrices using parallel processing.
+    /// </summary>
+    /// <param name="firstMatrix">The first matrix to multiply.</param>
+    /// <param name="secondMatrix">The second matrix to multiply.</param>
+    /// <returns>The result of multiplying the first matrix by the second matrix.</returns>
+    /// <exception cref="InvalidOperationException"></exception>
     public static Matrix MultiplyParallel(Matrix firstMatrix, Matrix secondMatrix)
     {
         if (firstMatrix.ColumnsCount != secondMatrix.RowsCount)
@@ -91,6 +129,11 @@ public class Matrix
         }
     }
 
+    /// <summary>
+    /// Compares this matrix to the specified matrix for equality.
+    /// </summary>
+    /// <param name="otherMatrix">The matrix to compare with this matrix.</param>
+    /// <returns>true if the matrices are equal; otherwise, false.</returns>
     public bool IsEqual(Matrix? otherMatrix)
     {
         if (otherMatrix == null)
@@ -111,6 +154,13 @@ public class Matrix
         return true;
     }
 
+    /// <summary>
+    /// Loads a matrix from the specified file.
+    /// </summary>
+    /// <param name="filePath">The path to the file containing the matrix data.</param>
+    /// <returns>The matrix loaded from the file.</returns>
+    /// <exception cref="FileNotFoundException"></exception>
+    /// <exception cref="ArgumentException"></exception>
     public static Matrix LoadFromFile(string filePath)
     {
         if (!File.Exists(filePath))
@@ -155,6 +205,10 @@ public class Matrix
         }
     }
 
+    /// <summary>
+    /// Writes this matrix to the specified file.
+    /// </summary>
+    /// <param name="pathToFile">The path to the file where this matrix will be written.</param>
     public void WriteInFile(string pathToFile)
     {
         using (var writer = new StreamWriter(pathToFile))
