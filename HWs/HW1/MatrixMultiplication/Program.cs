@@ -19,7 +19,7 @@ else
 {
     if (args.Length != 2)
     {
-        Write("Argument(s) error. Use \"dotnet help\".");
+        Write("Argument(s) error. Use \"dotnet run help\".");
         return;
     }
 
@@ -30,7 +30,7 @@ else
         var resultMatrix = Matrix.MultiplyParallel(firstMatrix, secondMatrix);
 
         resultMatrix.WriteInFile(Directory.GetCurrentDirectory() + "/result.txt");
-        WriteLine("Done!");
+        WriteLine("Done! The result of the multiplication is in the file \"result.txt\".");
     }
     catch (Exception e) when (e is ArgumentException || e is InvalidOperationException)
     {
