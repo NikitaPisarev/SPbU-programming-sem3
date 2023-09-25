@@ -9,16 +9,16 @@ public class SingleLazy<T> : ILazy<T>
 
     public SingleLazy(Func<T> supplier)
     {
+        if (supplier is null)
+        {
+            throw new ArgumentNullException("Supplier cannot be null.");
+        }
+
         _supplier = supplier;
     }
 
     public T? Get()
     {
-        if (_supplier is null)
-        {
-            throw new ArgumentNullException("Supplier cannot be null.");
-        }
-
         if (_supplierException != null)
         {
             throw _supplierException;
@@ -28,7 +28,7 @@ public class SingleLazy<T> : ILazy<T>
         {
             try
             {
-                _result = _supplier();
+                _result = _supplier!();
             }
             catch (Exception e)
             {
