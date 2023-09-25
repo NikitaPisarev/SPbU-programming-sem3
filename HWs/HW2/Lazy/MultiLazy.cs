@@ -1,5 +1,8 @@
 namespace Lazy;
 
+/// <summary>
+/// Implementation of the ILazy interface for multi-threaded use.
+/// </summary>
 public class MultiLazy<T> : ILazy<T>
 {
     private Func<T>? _supplier;
@@ -8,7 +11,11 @@ public class MultiLazy<T> : ILazy<T>
     private Exception? _supplierException;
     private readonly object _lockObject = new();
 
-
+    /// <summary>
+    /// Initializes a new instance of the <see cref="MultiLazy{T}"/> class.
+    /// </summary>
+    /// <param name="supplier">Lazy function.</param>
+    /// <exception cref="ArgumentNullException">Supplier cannot be null.</exception>
     public MultiLazy(Func<T> supplier)
     {
         if (supplier is null)
@@ -19,6 +26,7 @@ public class MultiLazy<T> : ILazy<T>
         _supplier = supplier;
     }
 
+    /// <inheritdoc cref="ILazy{T}.Get"/>
     public T? Get()
     {
         if (_supplierException != null)
