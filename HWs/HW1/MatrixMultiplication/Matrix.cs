@@ -69,10 +69,7 @@ public class Matrix
         {
             for (int j = 0; j < secondMatrix.ColumnsCount; ++j)
             {
-                for (int k = 0; k < firstMatrix.ColumnsCount; ++k)
-                {
-                    newMatrix[i, j] += firstMatrix._data[i, k] * secondMatrix._data[k, j];
-                }
+                newMatrix[i, j] = Enumerable.Range(0, firstMatrix.ColumnsCount).Sum(k => firstMatrix._data[i, k] * secondMatrix._data[k, j]);
             }
         }
 
@@ -121,10 +118,7 @@ public class Matrix
         {
             for (int j = 0; j < secondMatrix.ColumnsCount; j++)
             {
-                for (int k = 0; k < firstMatrix.ColumnsCount; k++)
-                {
-                    result[i, j] += firstMatrix[i, k] * secondMatrix[k, j];
-                }
+                result[i, j] = Enumerable.Range(0, firstMatrix.ColumnsCount).Sum(k => firstMatrix._data[i, k] * secondMatrix._data[k, j]);
             }
         }
     }
