@@ -42,7 +42,7 @@ public class SingleLazy<T> : ILazy<T>
             catch (Exception e)
             {
                 _supplierException = e;
-                throw e;
+                throw;
             }
             finally
             {

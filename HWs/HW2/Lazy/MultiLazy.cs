@@ -47,7 +47,7 @@ public class MultiLazy<T> : ILazy<T>
                     catch (Exception e)
                     {
                         _supplierException = e;
-                        throw e;
+                        throw;
                     }
                     finally
                     {
