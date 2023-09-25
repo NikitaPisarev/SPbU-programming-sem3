@@ -100,7 +100,17 @@ public class Matrix
             int startRow = i * chunkSize;
             int endRow = (i == numberOfCores - 1) ? firstMatrix.RowsCount : startRow + chunkSize;
 
-            threads[i] = new Thread(() => MultiplyRowRange(startRow, endRow, firstMatrix, secondMatrix, resultMatrix));
+            threads[i] = new Thread(() =>
+            {
+                for (int i = startRow; i < endRow; i++)
+                {
+                    for (int j = 0; j < secondMatrix.ColumnsCount; j++)
+                    {
+                        resultMatrix[i, j] = Enumerable.Range(0, firstMatrix.ColumnsCount).Sum(k => firstMatrix._data[i, k] * secondMatrix._data[k, j]);
+                    }
+                }
+            });
+
             threads[i].Start();
         }
 
@@ -110,17 +120,6 @@ public class Matrix
         }
 
         return resultMatrix;
-    }
-
-    private static void MultiplyRowRange(int startRow, int endRow, Matrix firstMatrix, Matrix secondMatrix, Matrix result)
-    {
-        for (int i = startRow; i < endRow; i++)
-        {
-            for (int j = 0; j < secondMatrix.ColumnsCount; j++)
-            {
-                result[i, j] = Enumerable.Range(0, firstMatrix.ColumnsCount).Sum(k => firstMatrix._data[i, k] * secondMatrix._data[k, j]);
-            }
-        }
     }
 
     /// <summary>
