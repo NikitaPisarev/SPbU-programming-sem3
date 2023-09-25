@@ -132,6 +132,9 @@ public class Matrix
         if (otherMatrix == null)
             return false;
 
+        if (ReferenceEquals(this, otherMatrix))
+            return true;
+
         if (RowsCount != otherMatrix.RowsCount || ColumnsCount != otherMatrix.ColumnsCount)
             return false;
 
