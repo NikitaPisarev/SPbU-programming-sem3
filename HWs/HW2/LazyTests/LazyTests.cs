@@ -41,6 +41,44 @@ public class Tests
         Assert.Throws<ArgumentException>(() => lazyInstance.Get());
         Assert.Throws<ArgumentException>(() => lazyInstance.Get());
     }
+
+    [Test]
+    public void MultiGet_DefaultFunction_CorrectResultAndCall()
+    {
+        int counter = 0;
+
+        var lazyInstance = new MultiLazy<int?>(() =>
+        {
+            ++counter;
+            return 0;
+        });
+
+        int threadCount = Environment.ProcessorCount;
+        var results = new int?[threadCount];
+        Thread[] threads = new Thread[threadCount];
+
+        for (int i = 0; i < threadCount; i++)
+        {
+            int localI = i;
+            threads[i] = new Thread(() =>
+            {
+                results[localI] = lazyInstance.Get();
+            });
+            threads[i].Start();
+        }
+
+        foreach (Thread thread in threads)
+        {
+            thread.Join();
+        }
+
+        foreach (int? result in results)
+        {
+            Assert.That(result, Is.EqualTo(0));
+        }
+
+        Assert.That(counter, Is.EqualTo(1));
+    }
 }
 
 public class TestFunctions
