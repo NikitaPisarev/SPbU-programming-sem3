@@ -6,7 +6,7 @@ namespace Lazy;
 public class MultiLazy<T> : ILazy<T>
 {
     private Func<T>? _supplier;
-    private bool _isReady = false;
+    private volatile bool _isReady = false;
     private T? _result;
     private Exception? _supplierException;
     private readonly object _lockObject = new();
@@ -38,6 +38,11 @@ public class MultiLazy<T> : ILazy<T>
         {
             lock (_lockObject)
             {
+                if (_supplierException != null)
+                {
+                    throw _supplierException;
+                }
+
                 if (!_isReady)
                 {
                     try
