@@ -4,6 +4,8 @@ using Lazy;
 
 public class Tests
 {
+    private readonly ManualResetEvent _threadsHandler = new(false);
+
     private static IEnumerable<TestCaseData> LazyImplementations
         => new TestCaseData[]
     {
@@ -46,6 +48,7 @@ public class Tests
     public void MultiGet_DefaultFunction_CorrectResultAndCall()
     {
         int counter = 0;
+        var handler = new ManualResetEvent(false);
 
         var lazyInstance = new MultiLazy<int?>(() =>
         {
@@ -62,10 +65,13 @@ public class Tests
             int localI = i;
             threads[i] = new Thread(() =>
             {
+                handler.WaitOne();
                 results[localI] = lazyInstance.Get();
             });
             threads[i].Start();
         }
+
+        handler.Set();
 
         foreach (Thread thread in threads)
         {
