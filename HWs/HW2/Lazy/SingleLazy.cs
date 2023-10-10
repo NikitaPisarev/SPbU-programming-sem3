@@ -6,7 +6,7 @@ namespace Lazy;
 public class SingleLazy<T> : ILazy<T>
 {
     private Func<T>? _supplier;
-    private bool _isReady = false;
+    private bool _isComputed = false;
     private T? _result;
     private Exception? _supplierException;
 
@@ -33,7 +33,7 @@ public class SingleLazy<T> : ILazy<T>
             throw _supplierException;
         }
 
-        if (!_isReady)
+        if (!_isComputed)
         {
             try
             {
@@ -46,7 +46,7 @@ public class SingleLazy<T> : ILazy<T>
             }
             finally
             {
-                _isReady = true;
+                _isComputed = true;
                 _supplier = null;
             }
         }
