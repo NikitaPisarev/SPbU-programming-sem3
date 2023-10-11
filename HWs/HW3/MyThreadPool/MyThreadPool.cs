@@ -34,11 +34,6 @@ public class MyThreadPool
 
         lock (_lockObject)
         {
-            if (_cts.Token.IsCancellationRequested)
-            {
-                throw new InvalidOperationException("Thread pool was shut down.");
-            }
-
             var myTask = new MyTask<TResult>(function, this);
             _taskQueue.Enqueue(myTask.Execute);
             Monitor.Pulse(_lockObject);
@@ -84,7 +79,7 @@ public class MyThreadPool
         private TResult? _result;
         private volatile bool _isCompleted = false;
         private Exception? _exception;
-        private object _syncRoot = new();
+        private object _syncObject = new();
 
         public MyTask(Func<TResult> function, MyThreadPool threadPool)
         {
@@ -98,11 +93,11 @@ public class MyThreadPool
         {
             get
             {
-                lock (_syncRoot)
+                lock (_syncObject)
                 {
                     while (!_isCompleted)
                     {
-                        Monitor.Wait(_syncRoot);
+                        Monitor.Wait(_syncObject);
                     }
 
                     if (_exception != null)
@@ -127,10 +122,10 @@ public class MyThreadPool
             }
             finally
             {
-                lock (_syncRoot)
+                lock (_syncObject)
                 {
                     _isCompleted = true;
-                    Monitor.Pulse(_syncRoot);
+                    Monitor.Pulse(_syncObject);
                 }
             }
         }
