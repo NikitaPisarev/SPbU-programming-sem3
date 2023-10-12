@@ -10,7 +10,6 @@ public class MyThreadPool
     private readonly CancellationTokenSource _cts;
     private readonly object _lockObject;
 
-
     public MyThreadPool(int threadNumber)
     {
         _threads = new Thread[threadNumber];
@@ -72,6 +71,20 @@ public class MyThreadPool
         }
     }
 
+    private void SubmitContinuation(Action action)
+    {
+        lock (_lockObject)
+        {
+            if (_cts.Token.IsCancellationRequested)
+            {
+                throw new InvalidOperationException("Thread pool was shut down.");
+            }
+
+            _taskQueue.Enqueue(action);
+            Monitor.Pulse(_lockObject);
+        }
+    }
+
     private class MyTask<TResult> : IMyTask<TResult>
     {
         private Func<TResult> _function;
@@ -79,6 +92,7 @@ public class MyThreadPool
         private TResult? _result;
         private volatile bool _isCompleted = false;
         private Exception? _exception;
+        private readonly List<Action> _continuationTasks = new();
         private object _syncObject = new();
 
         public MyTask(Func<TResult> function, MyThreadPool threadPool)
@@ -100,7 +114,7 @@ public class MyThreadPool
                         Monitor.Wait(_syncObject);
                     }
 
-                    if (_exception != null)
+                    if (_exception is not null)
                     {
                         throw new AggregateException(_exception);
                     }
@@ -126,13 +140,45 @@ public class MyThreadPool
                 {
                     _isCompleted = true;
                     Monitor.Pulse(_syncObject);
+                    ExecuteContinuations();
                 }
+            }
+        }
+
+        private void ExecuteContinuations()
+        {
+            Action? continuation = null;
+            lock (_syncObject)
+            {
+                if (_continuationTasks.Count > 0)
+                {
+                    continuation = _continuationTasks[0];
+                    _continuationTasks.RemoveAt(0);
+                }
+            }
+            if (continuation is not null)
+            {
+                _threadPool.SubmitContinuation(continuation);
             }
         }
 
         public IMyTask<TNewResult> ContinueWith<TNewResult>(Func<TResult?, TNewResult> continuationFunction)
         {
-            return _threadPool.Submit(() => continuationFunction(Result));
+            lock (_syncObject)
+            {
+                var continuationTask = new MyTask<TNewResult>(() => continuationFunction(Result), _threadPool);
+
+                if (_isCompleted)
+                {
+                    _threadPool.SubmitContinuation(() => continuationTask.Execute());
+                }
+                else
+                {
+                    _continuationTasks.Add(() => continuationTask.Execute());
+                }
+
+                return continuationTask;
+            }
         }
     }
 }
