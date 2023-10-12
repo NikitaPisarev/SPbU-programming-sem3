@@ -20,6 +20,11 @@ public class MyThreadPool
     /// <param name="threadNumber">The number of threads in the pool.</param>
     public MyThreadPool(int threadNumber)
     {
+        if (threadNumber < 1)
+        {
+            throw new ArgumentException("Thread pool must have at least 1 thread.");
+        }
+
         _threads = new Thread[threadNumber];
         _taskQueue = new();
         _cts = new();
@@ -28,6 +33,7 @@ public class MyThreadPool
         for (int i = 0; i < threadNumber; i++)
         {
             _threads[i] = new Thread(Work);
+            _threads[i].IsBackground = true;
             _threads[i].Start();
         }
     }
