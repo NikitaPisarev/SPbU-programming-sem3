@@ -12,6 +12,7 @@ public class MyThreadPool
     private readonly ConcurrentQueue<Action> _taskQueue;
     private readonly CancellationTokenSource _cts;
     private readonly object _lockObject;
+    public bool IsShutdown = false;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="MyThreadPool"/> class.
@@ -62,6 +63,7 @@ public class MyThreadPool
         {
             _cts.Cancel();
             Monitor.PulseAll(_lockObject);
+            IsShutdown = true;
         }
 
         foreach (var thread in _threads)
@@ -92,7 +94,7 @@ public class MyThreadPool
         {
             if (_cts.Token.IsCancellationRequested)
             {
-                throw new InvalidOperationException("Thread pool was shut down.");
+                return;
             }
 
             _taskQueue.Enqueue(action);
@@ -195,6 +197,11 @@ public class MyThreadPool
         /// <param name="continuationFunction">The function representing the continuation task.</param>
         public IMyTask<TNewResult> ContinueWith<TNewResult>(Func<TResult?, TNewResult> continuationFunction)
         {
+            if (_threadPool.IsShutdown)
+            {
+                throw new InvalidOperationException("Thread pool was shut down.");
+            }
+
             lock (_syncObject)
             {
                 var continuationTask = new MyTask<TNewResult>(() => continuationFunction(Result), _threadPool);
