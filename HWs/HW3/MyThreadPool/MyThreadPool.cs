@@ -3,6 +3,9 @@ namespace MyThreadPool;
 using System.Collections.Concurrent;
 using System.Threading;
 
+/// <summary>
+/// Represents a thread pool for executing tasks concurrently.
+/// </summary>
 public class MyThreadPool
 {
     private readonly Thread[] _threads;
@@ -10,6 +13,10 @@ public class MyThreadPool
     private readonly CancellationTokenSource _cts;
     private readonly object _lockObject;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="MyThreadPool"/> class.
+    /// </summary>
+    /// <param name="threadNumber">The number of threads in the pool.</param>
     public MyThreadPool(int threadNumber)
     {
         _threads = new Thread[threadNumber];
@@ -24,6 +31,11 @@ public class MyThreadPool
         }
     }
 
+    /// <summary>
+    /// Submits a new task to the thread pool.
+    /// </summary>
+    /// <typeparam name="TResult">The type of task result.</typeparam>
+    /// <param name="function">The function representing the task.</param>
     public IMyTask<TResult> Submit<TResult>(Func<TResult> function)
     {
         if (_cts.Token.IsCancellationRequested)
@@ -41,6 +53,23 @@ public class MyThreadPool
         }
     }
 
+    /// <summary>
+    /// Shuts down the thread pool and waits for all threads to complete execution.
+    /// </summary>
+    public void Shutdown()
+    {
+        lock (_lockObject)
+        {
+            _cts.Cancel();
+            Monitor.PulseAll(_lockObject);
+        }
+
+        foreach (var thread in _threads)
+        {
+            thread.Join();
+        }
+    }
+
     private void Work()
     {
         while (!_cts.Token.IsCancellationRequested)
@@ -54,20 +83,6 @@ public class MyThreadPool
                 }
             }
             task?.Invoke();
-        }
-    }
-
-    public void Shutdown()
-    {
-        lock (_lockObject)
-        {
-            _cts.Cancel();
-            Monitor.PulseAll(_lockObject);
-        }
-
-        foreach (var thread in _threads)
-        {
-            thread.Join();
         }
     }
 
@@ -95,14 +110,25 @@ public class MyThreadPool
         private readonly List<Action> _continuationTasks = new();
         private object _syncObject = new();
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MyTask{TResult}"/> class.
+        /// </summary>
+        /// <param name="function">The function representing the task.</param>
+        /// <param name="threadPool">The thread pool to which this task belongs.</param>
         public MyTask(Func<TResult> function, MyThreadPool threadPool)
         {
             _function = function;
             _threadPool = threadPool;
         }
 
+        /// <summary>
+        /// See if the task is completed.
+        /// </summary>
         public bool IsCompleted => _isCompleted;
 
+        /// <summary>
+        /// Gets the result of the task execution.
+        /// </summary>
         public TResult? Result
         {
             get
@@ -162,6 +188,11 @@ public class MyThreadPool
             }
         }
 
+        /// <summary>
+        /// Adds a continuation task to be executed when this task completes.
+        /// </summary>
+        /// <typeparam name="TNewResult">The type of continuation task result.</typeparam>
+        /// <param name="continuationFunction">The function representing the continuation task.</param>
         public IMyTask<TNewResult> ContinueWith<TNewResult>(Func<TResult?, TNewResult> continuationFunction)
         {
             lock (_syncObject)
