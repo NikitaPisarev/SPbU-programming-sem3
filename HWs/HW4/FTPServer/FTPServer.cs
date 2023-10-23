@@ -54,6 +54,9 @@ public class FTPServer
         }
     }
 
+    /// <summary>
+    /// Stop the FTP server.
+    /// </summary> <summary>
     public void Stop()
     {
         _cts.Cancel();
