@@ -3,17 +3,27 @@ namespace FTPServer;
 using System.Net;
 using System.Net.Sockets;
 
+/// <summary>
+/// Represents a FTP server that can handle requests from FTP clients.
+/// </summary>
 public class FTPServer
 {
     private readonly TcpListener _listener;
     private readonly int _port;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="FTPServer"/> class.
+    /// </summary>
+    /// <param name="port">The port to listen on.</param>
     public FTPServer(int port)
     {
         _port = port;
         _listener = new TcpListener(IPAddress.Any, _port);
     }
 
+    /// <summary>
+    /// Starts the FTP server.
+    /// </summary>
     public async Task StartAsync()
     {
         _listener.Start();
