@@ -1,6 +1,7 @@
 ﻿namespace FTPClient;
 
 using System.Net.Sockets;
+using System.Net.WebSockets;
 
 class Program
 {
@@ -16,8 +17,8 @@ class Program
 
         try
         {
-            await client.ListAsync("../FTPTests/Files");
-            await client.GetAsync("../FTPTests/Files/file1.txt");
+            Console.WriteLine(await client.ListAsync("../FTPTests/Files"));
+            Console.WriteLine(await client.GetAsync("../FTPTests/Files/file1.txt"));
         }
         catch (Exception e) when (e is SocketException || e is IOException)
         {

@@ -25,20 +25,20 @@ public class FTPClient
     /// Sends a request to list files in a directory on the server
     /// </summary>
     /// <param name="path">The path to file.</param>
-    public async Task ListAsync(string path)
+    public async Task<string?> ListAsync(string path)
     {
         string? response = await SendRequestAsync($"1 {path}");
-        Console.WriteLine(response);
+        return response;
     }
 
     /// <summary>
     /// Sends a request to download a file from the server.
     /// </summary>
     /// <param name="path">The path to file.</param>
-    public async Task GetAsync(string path)
+    public async Task<string?> GetAsync(string path)
     {
         string? response = await SendRequestAsync($"2 {path}");
-        Console.WriteLine(response);
+        return response;
     }
 
     private async Task<string?> SendRequestAsync(string request)
