@@ -10,6 +10,7 @@ public class FTPServer
 {
     private readonly TcpListener _listener;
     private readonly int _port;
+    private readonly CancellationTokenSource _cts = new();
 
     /// <summary>
     /// Initializes a new instance of the <see cref="FTPServer"/> class.
@@ -28,7 +29,7 @@ public class FTPServer
     {
         _listener.Start();
 
-        while (true)
+        while (!_cts.Token.IsCancellationRequested)
         {
             var client = await _listener.AcceptTcpClientAsync();
             await using var stream = client.GetStream();
@@ -51,6 +52,12 @@ public class FTPServer
                 await HandleGetAsync(request[2..], writer);
             }
         }
+    }
+
+    public void Stop()
+    {
+        _cts.Cancel();
+        _listener.Stop();
     }
 
     private static async Task HandleListAsync(string path, StreamWriter writer)
