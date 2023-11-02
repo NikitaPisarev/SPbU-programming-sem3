@@ -54,7 +54,7 @@ switch (args.Length)
         break;
 
     case 2:
-        if (IPAddress.TryParse(args[0], out _))
+        if (!IPAddress.TryParse(args[0], out _))
         {
             Console.WriteLine("Incorrect IP-adress.");
             break;
