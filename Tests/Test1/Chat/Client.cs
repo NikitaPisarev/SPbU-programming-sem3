@@ -56,6 +56,6 @@ public class Client
         {
             await writer.WriteLineAsync("Client: " + line);
         }
-        await writer.WriteLineAsync(line);
+        await writer.WriteLineAsync("exit");
     }
 }

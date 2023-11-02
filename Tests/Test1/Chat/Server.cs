@@ -59,6 +59,6 @@ public class Server
         {
             await writer.WriteLineAsync("Server: " + line);
         }
-        await writer.WriteLineAsync(line);
+        await writer.WriteLineAsync("exit");
     }
 }
