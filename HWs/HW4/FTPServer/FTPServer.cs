@@ -32,25 +32,27 @@ public class FTPServer
         while (!_cts.Token.IsCancellationRequested)
         {
             var client = await _listener.AcceptTcpClientAsync();
-            await using var stream = client.GetStream();
-            using var reader = new StreamReader(stream);
-            using var writer = new StreamWriter(stream);
-
-            string? request = await reader.ReadLineAsync();
-            if (request is null)
+            Task.Run(async () =>
             {
-                continue;
-            }
+                await using var stream = client.GetStream();
+                using var reader = new StreamReader(stream);
+                using var writer = new StreamWriter(stream);
 
-            if (request.StartsWith("1 "))
-            {
-                await HandleListAsync(request[2..], writer);
-            }
+                string? request;
+                while ((request = await reader.ReadLineAsync()) != null)
+                {
+                    if (request.StartsWith("1 "))
+                    {
+                        await HandleListAsync(request[2..], writer);
+                    }
 
-            if (request.StartsWith("2 "))
-            {
-                await HandleGetAsync(request[2..], writer);
-            }
+                    if (request.StartsWith("2 "))
+                    {
+                        await HandleGetAsync(request[2..], writer);
+                    }
+                }
+                client.Close();
+            });
         }
     }
 
