@@ -15,14 +15,40 @@ class Program
 
         var client = new FTPClient("localhost", port);
 
-        try
+        while (true)
         {
-            Console.WriteLine(await client.ListAsync("../FTPTests/Files"));
-            Console.WriteLine(await client.GetAsync("../FTPTests/Files/file1.txt"));
-        }
-        catch (Exception e) when (e is SocketException || e is IOException)
-        {
-            Console.WriteLine("Connection to server error.");
+            Console.Write("Enter the command (list [path] / get [path] / exit): ");
+            var input = Console.ReadLine();
+
+            if (string.IsNullOrEmpty(input))
+            {
+                continue;
+            }
+
+            var parts = input.Split(' ', 2);
+            var command = parts[0].ToLower();
+
+            try
+            {
+                switch (command)
+                {
+                    case "list" when parts.Length == 2:
+                        Console.WriteLine(await client.ListAsync(parts[1]));
+                        break;
+                    case "get" when parts.Length == 2:
+                        Console.WriteLine(await client.GetAsync(parts[1]));
+                        break;
+                    case "exit":
+                        return;
+                    default:
+                        Console.WriteLine("Incorrect command.");
+                        break;
+                }
+            }
+            catch (Exception e) when (e is SocketException || e is IOException)
+            {
+                Console.WriteLine("Connection to server error.");
+            }
         }
     }
 }
