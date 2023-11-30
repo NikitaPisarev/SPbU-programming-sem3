@@ -63,9 +63,17 @@ public static class ChecksumCalculator
         }
 
         string[] dirs = Directory.GetDirectories(path);
+
+        var directoryHashes = new ConcurrentDictionary<string, string>();
+        Parallel.ForEach(dirs, dir =>
+        {
+            using var md5File = MD5.Create();
+            directoryHashes[dir] = CalculateChecksumMulti(dir, md5File);
+        });
+
         foreach (var dir in dirs)
         {
-            combinedHashes.Append(CalculateChecksumMulti(dir, md5));
+            combinedHashes.Append(directoryHashes[dir]);
         }
 
         return BitConverter.ToString(md5.ComputeHash(Encoding.UTF8.GetBytes(combinedHashes.ToString())));
