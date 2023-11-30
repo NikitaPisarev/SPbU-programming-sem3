@@ -49,6 +49,7 @@ public static class ChecksumCalculator
         combinedHashes.Append(GetDirectoryNameHash(path, md5));
 
         string[] files = Directory.GetFiles(path);
+        Array.Sort(files);
 
         var fileHashes = new ConcurrentDictionary<string, string>();
         Parallel.ForEach(files, file =>
@@ -63,6 +64,7 @@ public static class ChecksumCalculator
         }
 
         string[] dirs = Directory.GetDirectories(path);
+        Array.Sort(dirs);
 
         var directoryHashes = new ConcurrentDictionary<string, string>();
         Parallel.ForEach(dirs, dir =>
