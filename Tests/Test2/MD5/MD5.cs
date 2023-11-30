@@ -78,9 +78,10 @@ public static class ChecksumCalculator
             combinedHashes.Append(dirHash);
         }
 
-        return BitConverter.ToString(md5.ComputeHash(Encoding.UTF8.GetBytes(combinedHashes.ToString())));
+        return BitConverter.ToString(md5.ComputeHash(Encoding.UTF8.GetBytes(combinedHashes.ToString())))
+        .Replace("-", "")
+        .ToLowerInvariant();
     }
-
 
     private static string CalculateChecksumSingle(string path, MD5 md5)
     {
@@ -97,17 +98,21 @@ public static class ChecksumCalculator
             hash.Append(CalculateChecksumSingle(dir, md5));
         }
 
-        return BitConverter.ToString(md5.ComputeHash(Encoding.UTF8.GetBytes(hash.ToString())));
+        return BitConverter.ToString(md5.ComputeHash(Encoding.UTF8.GetBytes(hash.ToString())))
+        .Replace("-", "")
+        .ToLowerInvariant();
     }
 
     private static string GetFileHash(string filePath, MD5 md5)
     {
         using var stream = File.OpenRead(filePath);
-        return BitConverter.ToString(md5.ComputeHash(stream));
+        byte[] hashBytes = md5.ComputeHash(stream);
+        return BitConverter.ToString(hashBytes).Replace("-", "").ToLowerInvariant();
     }
 
     private static string GetDirectoryNameHash(string dirPath, MD5 md5)
     {
-        return BitConverter.ToString(md5.ComputeHash(Encoding.UTF8.GetBytes(new DirectoryInfo(dirPath).Name)));
+        byte[] hashBytes = md5.ComputeHash(Encoding.UTF8.GetBytes(new DirectoryInfo(dirPath).Name));
+        return BitConverter.ToString(hashBytes).Replace("-", "").ToLowerInvariant();
     }
 }
