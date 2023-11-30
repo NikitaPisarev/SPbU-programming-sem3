@@ -48,10 +48,10 @@ public static class ChecksumCalculator
         var combinedHashes = new StringBuilder();
         combinedHashes.Append(GetDirectoryNameHash(path, md5));
 
-        string[] files = Directory.GetFiles(path);
+        var files = Directory.GetFiles(path);
         Array.Sort(files);
 
-        string[] fileHashes = new string[files.Length];
+        var fileHashes = new string[files.Length];
         Parallel.For(0, files.Length, i =>
         {
             using var md5File = MD5.Create();
@@ -63,19 +63,12 @@ public static class ChecksumCalculator
             combinedHashes.Append(fileHash);
         }
 
-        string[] dirs = Directory.GetDirectories(path);
+        var dirs = Directory.GetDirectories(path);
         Array.Sort(dirs);
 
-        string[] directoryHashes = new string[dirs.Length];
-        Parallel.For(0, dirs.Length, i =>
+        foreach (var dir in dirs)
         {
-            using var md5Dir = MD5.Create();
-            directoryHashes[i] = CalculateChecksumMulti(dirs[i], md5Dir);
-        });
-
-        foreach (var dirHash in directoryHashes)
-        {
-            combinedHashes.Append(dirHash);
+            combinedHashes.Append(CalculateChecksumMulti(dir, md5));
         }
 
         return BitConverter.ToString(md5.ComputeHash(Encoding.UTF8.GetBytes(combinedHashes.ToString())))
@@ -106,13 +99,13 @@ public static class ChecksumCalculator
     private static string GetFileHash(string filePath, MD5 md5)
     {
         using var stream = File.OpenRead(filePath);
-        byte[] hashBytes = md5.ComputeHash(stream);
+        var hashBytes = md5.ComputeHash(stream);
         return BitConverter.ToString(hashBytes).Replace("-", "").ToLowerInvariant();
     }
 
     private static string GetDirectoryNameHash(string dirPath, MD5 md5)
     {
-        byte[] hashBytes = md5.ComputeHash(Encoding.UTF8.GetBytes(new DirectoryInfo(dirPath).Name));
+        var hashBytes = md5.ComputeHash(Encoding.UTF8.GetBytes(new DirectoryInfo(dirPath).Name));
         return BitConverter.ToString(hashBytes).Replace("-", "").ToLowerInvariant();
     }
 }
