@@ -4,8 +4,17 @@ using System.Collections.Concurrent;
 using System.Security.Cryptography;
 using System.Text;
 
+/// <summary>
+/// Provides methods that calculate the check-sum of a file system directory.
+/// </summary>
 public static class ChecksumCalculator
 {
+    /// <summary>
+    /// Calculates the check-sum for a directory using a single-thread.
+    /// </summary>
+    /// <param name="directoryPath">The path to the directory.</param>
+    /// <returns>The check-sum as a hex string.</returns>
+    /// <exception cref="ArgumentException"></exception>
     public static string CalculateDirectoryChecksumSingleThread(string directoryPath)
     {
         if (!Directory.Exists(directoryPath))
@@ -17,6 +26,12 @@ public static class ChecksumCalculator
         return CalculateChecksumSingle(directoryPath, md5);
     }
 
+    /// <summary>
+    /// Calculates the check-sum for a directory using a multi-thread.
+    /// </summary>
+    /// <param name="directoryPath">The path to the directory.</param>
+    /// <returns>The check-sum as a hex string.</returns>
+    /// <exception cref="ArgumentException"></exception>
     public static string CalculateDirectoryChecksumMultiThread(string directoryPath)
     {
         if (!Directory.Exists(directoryPath))
