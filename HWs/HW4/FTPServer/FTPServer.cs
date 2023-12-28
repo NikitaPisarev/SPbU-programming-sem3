@@ -18,6 +18,11 @@ public class FTPServer
     /// <param name="port">The port to listen on.</param>
     public FTPServer(int port)
     {
+        if (port < 0 || port > 65535)
+        {
+            throw new ArgumentException("Incorrect port value.");
+        }
+
         _port = port;
         _listener = new TcpListener(IPAddress.Any, _port);
     }

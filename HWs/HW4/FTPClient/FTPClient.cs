@@ -1,5 +1,6 @@
 namespace FTPClient;
 
+using System.Net;
 using System.Net.Sockets;
 
 /// <summary>
@@ -17,6 +18,16 @@ public class FTPClient
     /// <param name="port">The port of the FTP server.</param>
     public FTPClient(string address, int port)
     {
+        if (port < 0 || port > 65535)
+        {
+            throw new ArgumentException("Incorrect port value.");
+        }
+
+        if (!IPAddress.TryParse(address, out _))
+        {
+            throw new ArgumentException("Incorrect IP-adress.");
+        }
+
         _address = address;
         _port = port;
     }

@@ -10,7 +10,7 @@ public class Tests
     private FTPServer _server;
     private FTPClient _client;
     private int _port = 8888;
-    private string _address = "localhost";
+    private string _address = "127.0.0.1";
 
     [SetUp]
     public async Task Setup()
