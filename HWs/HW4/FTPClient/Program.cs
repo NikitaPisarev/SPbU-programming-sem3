@@ -13,7 +13,7 @@ class Program
             return;
         }
 
-        var client = new FTPClient("localhost", port);
+        var client = new FTPClient("127.0.0.1", port);
 
         while (true)
         {
