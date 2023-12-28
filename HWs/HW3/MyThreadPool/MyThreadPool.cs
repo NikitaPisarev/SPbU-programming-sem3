@@ -115,7 +115,7 @@ public class MyThreadPool
         private TResult? _result;
         private volatile bool _isCompleted = false;
         private Exception? _exception;
-        private readonly List<Action> _continuationTasks = new();
+        private readonly ConcurrentQueue<Action> _continuationTasks = new();
         private object _syncObject = new();
 
         /// <summary>
@@ -186,8 +186,7 @@ public class MyThreadPool
             {
                 if (_continuationTasks.Count > 0)
                 {
-                    continuation = _continuationTasks[0];
-                    _continuationTasks.RemoveAt(0);
+                    _continuationTasks.TryDequeue(out continuation);
                 }
             }
             if (continuation is not null)
@@ -214,11 +213,11 @@ public class MyThreadPool
 
                 if (_isCompleted)
                 {
-                    _threadPool.SubmitContinuation(() => continuationTask.Execute());
+                    _threadPool.SubmitContinuation(continuationTask.Execute);
                 }
                 else
                 {
-                    _continuationTasks.Add(() => continuationTask.Execute());
+                    _continuationTasks.Enqueue(continuationTask.Execute);
                 }
 
                 return continuationTask;
