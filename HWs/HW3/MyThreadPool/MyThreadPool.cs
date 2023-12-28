@@ -181,17 +181,9 @@ public class MyThreadPool
 
         private void ExecuteContinuations()
         {
-            Action? continuation = null;
-            lock (_syncObject)
+            foreach (var continuation in _continuationTasks)
             {
-                if (_continuationTasks.Count > 0)
-                {
-                    _continuationTasks.TryDequeue(out continuation);
-                }
-            }
-            if (continuation is not null)
-            {
-                _threadPool.SubmitContinuation(continuation);
+                _threadPool._taskQueue.Enqueue(continuation);
             }
         }
 
