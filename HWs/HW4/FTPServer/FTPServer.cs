@@ -80,6 +80,8 @@ public class FTPServer
         }
 
         var entries = Directory.GetFileSystemEntries(path);
+        Array.Sort(entries);
+
         await writer.WriteAsync($"{entries.Length}");
         foreach (var entry in entries)
         {
