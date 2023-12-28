@@ -39,7 +39,7 @@ public class Tests
     }
 
     [Test]
-    public async Task GetAsync_ValidPath_ReturnsCorrectData()
+    public async Task GetAsync_ValidPathFile_ReturnsCorrectData()
     {
         var response = await _client.GetAsync("../../../Files/Folder/file.txt");
         if (response is null)
@@ -64,6 +64,25 @@ public class Tests
             Assert.That(actualCount, Is.EqualTo(expectedCount));
             Assert.That(actualContent, Is.EqualTo(expectedContent));
         });
+    }
+
+    [Test]
+    public async Task GetAsync_ValidPathBinaryFile_ReturnsCorrectData()
+    {
+        var response = await _client.GetAsync("../../../Files/Folder/photo.jpg");
+        if (response is null)
+        {
+            Assert.Fail();
+            return;
+        }
+
+        var parts = response.Split(' ');
+        var actualContent = parts[1];
+
+        var file = await File.ReadAllBytesAsync("../../../Files/Folder/photo.jpg");
+        string expectedContent = BitConverter.ToString(file).Replace("-", "");
+
+        Assert.That(actualContent, Is.EqualTo(expectedContent));
     }
 
     [Test]
