@@ -30,6 +30,31 @@ public class Tests
         throw new InvalidOperationException("Test Method 2 failed!");
     }
 
+    [Test(Expected = typeof(InvalidOperationException))]
+    public void TestExpectingException()
+    {
+        throw new InvalidOperationException("Expected exception thrown.");
+    }
+
+    [Test(Ignore = "This test is ignored")]
+    public void IgnoredTest()
+    {
+        Console.WriteLine("Ignored Test executed.");
+    }
+
+    [Test]
+    public void TestWithArguments(int number)
+    {
+        Console.WriteLine("Test With Arguments executed.");
+    }
+
+    [Test]
+    public string TestWithReturnValue()
+    {
+        Console.WriteLine("Test With Return Value executd.");
+        return "Hello, World!";
+    }
+
     [After]
     public void TearDown()
     {

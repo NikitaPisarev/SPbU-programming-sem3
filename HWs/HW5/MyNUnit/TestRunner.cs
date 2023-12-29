@@ -68,6 +68,22 @@ public static class TestRunner
     private static TestResult RunTest(Type type, MethodInfo testMethod)
     {
         var result = new TestResult(testMethod.Name);
+
+        var testArg = testMethod.GetCustomAttribute<Test>();
+        if (testArg?.Ignore is not null)
+        {
+            result.IsIgnored = true;
+            result.Reason = testArg.Ignore;
+            return result;
+        }
+
+        if (testMethod.GetParameters().Length > 0 || testMethod.ReturnType != typeof(void))
+        {
+            result.IsIgnored = true;
+            result.Reason = "Invalid test method signature.";
+            return result;
+        }
+
         var stopwatch = new Stopwatch();
 
         var instance = Activator.CreateInstance(type);
@@ -80,8 +96,15 @@ public static class TestRunner
         }
         catch (Exception e)
         {
-            result.IsPassed = false;
-            result.ExceptionMessage = e.InnerException?.Message ?? "Unknown exception.";
+            if (testArg?.Expected is not null && e.InnerException?.GetType() == testArg.Expected)
+            {
+                result.IsPassed = true;
+            }
+            else
+            {
+                result.IsPassed = false;
+                result.ExceptionMessage = e.InnerException?.Message ?? "Unknown exception.";
+            }
         }
         stopwatch.Stop();
 
@@ -113,10 +136,17 @@ public static class TestRunner
     {
         foreach (var result in results)
         {
-            Console.WriteLine($"Test: {result.TestName}, Passed: {result.IsPassed}, Time: {result.Duration.TotalMilliseconds} ms");
-            if (!result.IsPassed)
+            if (result.IsIgnored)
             {
-                Console.WriteLine($"    Exception: {result.ExceptionMessage}");
+                Console.WriteLine($"Test: {result.TestName}, Ignored: {result.Reason}");
+            }
+            else
+            {
+                Console.WriteLine($"Test: {result.TestName}, Passed: {result.IsPassed}, Time: {result.Duration.TotalMilliseconds} ms");
+                if (!result.IsPassed)
+                {
+                    Console.WriteLine($"    Exception: {result.ExceptionMessage}");
+                }
             }
         }
     }
