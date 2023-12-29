@@ -134,21 +134,39 @@ public static class TestRunner
 
     private static void PrintResults(List<TestResult> results)
     {
+        int passedCount = 0;
+        int failedCount = 0;
+        int ignoredCount = 0;
+
         foreach (var result in results)
         {
             if (result.IsIgnored)
             {
-                Console.WriteLine($"Test: {result.TestName}, Ignored: {result.Reason}");
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.WriteLine($"IGNORED: {result.TestName}\n    Reason: {result.Reason}");
+                ignoredCount++;
+            }
+            else if (result.IsPassed)
+            {
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine($"PASSED: {result.TestName}\n    Duration: {result.Duration.TotalMilliseconds} ms");
+                passedCount++;
             }
             else
             {
-                Console.WriteLine($"Test: {result.TestName}, Passed: {result.IsPassed}, Time: {result.Duration.TotalMilliseconds} ms");
-                if (!result.IsPassed)
-                {
-                    Console.WriteLine($"    Exception: {result.ExceptionMessage}");
-                }
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine($"FAILED: {result.TestName}\n    Duration: {result.Duration.TotalMilliseconds} ms");
+                Console.WriteLine($"Exception: {result.ExceptionMessage}");
+                failedCount++;
             }
+
+            Console.ResetColor();
+            Console.WriteLine("\n");
         }
+
+        Console.ForegroundColor = ConsoleColor.Blue;
+        Console.WriteLine($"Total tests: {results.Count}. Passed: {passedCount}. Failed: {failedCount}. Ignored: {ignoredCount}.");
+        Console.ResetColor();
     }
 }
 
